@@ -6,7 +6,7 @@ using namespace std;
 
 xyz copy(xyz a) //used in constructors and in setters to set arguments as object variables
 {
-	xyz b;
+	xyz b = {};
 	a.x = b.x;
 	a.y = b.y;
 	a.z = b.z;
@@ -39,7 +39,7 @@ User::User(xyz starting, xyz stop, xyz destination) //with start, stop, and fini
 	ynstop = 1;
 	handicap = 0;
 }
-User::~User(){};
+User::~User() {};
 
 
 bool User::getHandicap()
@@ -79,5 +79,3 @@ void User::setDestination(xyz coordinates)
 }
 
 ////////////////////////////////////////////////////////////////////////////DEBUGGING
-
-
