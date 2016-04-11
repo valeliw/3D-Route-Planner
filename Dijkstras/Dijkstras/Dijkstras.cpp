@@ -19,14 +19,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		cerr << "Out of range error: " << oor.what() << ", please input a correct room name (ie JW101 or JWToilet101)." << endl;
 	}
-	catch (const exception& str)
-	{
-		cerr << "Exception error: " << str.what() << ", please input a correct room name" << endl;
-	}
-	catch (...)
-	{
-		cerr << "Can't read ID of node, error: " << "..." << ", please input a correct room name (ie JW101 or JWToilet101." << endl;
-	}
 	return 0;
 }
 
@@ -48,6 +40,8 @@ void PrintShortestRouteTo(Node* destination);
 //Node* setDestinationPoint();
 int setStartingPoint();
 int setDestinationPoint();
+bool setHandicap();
+void deleteStairs(vector<Edge*>& edges);
 
 
 vector<Node*> nodes;
@@ -948,7 +942,10 @@ void DijkstrasTest()
 	Edge* erctg = new Edge(rcconnector, tgconnector, 5);
 
 
-	///////////////////////////////////START OF USER INPUT PHASE
+	///////////////////////////////////START OF USER INPUT PHASE////////////////////////////////////////////////////////
+
+	cout << "Do you have any disabilities that would prevent the use of stairs?" << endl;
+	bool handicap = setHandicap();
 
 	cout << "Input starting point id: " << endl;
 	int startID = setStartingPoint();
@@ -956,8 +953,14 @@ void DijkstrasTest()
 
 	cout << "Input the destination point: " << endl;
 	int destinationID = setDestinationPoint();
-								
-	Dijkstras();
+	
+
+	if (handicap)
+	{
+		deleteStairs(edges); //makes the stairs unusable for a handicapped user
+	}
+
+	Dijkstras(); //find distance to all nodes
 	PrintShortestRouteTo(nodesFINAL.at(destinationID)); //set end node
 	system("pause");
 
@@ -966,7 +969,7 @@ void DijkstrasTest()
 ///////////////////
 
 ////done by me
-int setStartingPoint()
+int setStartingPoint() //returns starting node position in "nodes" vector
 {
 	string start;
 	int size = nodes.size();
@@ -981,7 +984,7 @@ int setStartingPoint()
 	}
 }
 
-int setDestinationPoint()
+int setDestinationPoint() // returns destination node position in "nodes" vector
 {
 	string destination;
 	int size = nodes.size();
@@ -992,6 +995,47 @@ int setDestinationPoint()
 		if (destination == nodes.at(i)->id)
 		{
 			return i;
+		}
+	}
+}
+
+bool setHandicap() //returns a boolean to know if user is handicapped or not
+{
+	bool disability;
+	bool looping = true;
+	string handicap;
+	while (looping == true)
+	{
+		looping = false;
+		getline(cin, handicap);
+		if ((handicap != "yes") && (handicap !="no") && (handicap != "Yes") && (handicap != "No"))
+		{
+			cout << "Please enter a correct value (yes or no)" << endl;
+			looping = true;
+		}
+		else if ((handicap == "yes") || (handicap == "Yes"))
+		{
+			disability = true;
+		}
+		else if ((handicap == "no") || (handicap == "No"))
+		{
+			disability = false;
+		}
+	}
+	return disability;
+}
+
+void deleteStairs(vector<Edge*>& edges) //deletes inter-stair edges,only use if handicap = true
+{
+	int size = edges.size();
+	for (int i = 0; i < size; ++i)
+	{
+		Edge* current = edges.at(i);
+		if ((current->node1->type == 3) && (current->node2->type == 3))
+		{
+			//cout << "The edge connecting " << current->node1->id << " and " << current->node2->id << " was 'deleted' (at i= " << i << endl;
+			//^^ for testing purposes
+			current->distance = 9999999; //deleting them gave out of range errors
 		}
 	}
 }
