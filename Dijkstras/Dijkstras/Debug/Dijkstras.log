@@ -1,4 +1,5 @@
 ﻿  Dijkstras.cpp
-c:\users\valentin\documents\uni stuff\year 2\ee273\3d-route-planner-master\3d-route-planner-master\dijkstras-source-code\dijkstras\dijkstras\dijkstras.cpp(180): warning C4715: 'setDestinationPoint': not all control paths return a value
-c:\users\valentin\documents\uni stuff\year 2\ee273\3d-route-planner-master\3d-route-planner-master\dijkstras-source-code\dijkstras\dijkstras\dijkstras.cpp(165): warning C4715: 'setStartingPoint': not all control paths return a value
+c:\users\valentin\documents\uni stuff\year 2\ee273\3d-route-planner-master\3d-route-planner-master\dijkstras-source-code\dijkstras\dijkstras\dijkstras.cpp(1109): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\users\valentin\documents\uni stuff\year 2\ee273\3d-route-planner-master\3d-route-planner-master\dijkstras-source-code\dijkstras\dijkstras\dijkstras.cpp(997): warning C4715: 'setDestinationPoint': not all control paths return a value
+c:\users\valentin\documents\uni stuff\year 2\ee273\3d-route-planner-master\3d-route-planner-master\dijkstras-source-code\dijkstras\dijkstras\dijkstras.cpp(982): warning C4715: 'setStartingPoint': not all control paths return a value
   Dijkstras.vcxproj -> C:\Users\Valentin\Documents\Uni Stuff\Year 2\EE273\3D-Route-Planner-master\3D-Route-Planner-master\dijkstras-source-code\Dijkstras\Debug\Dijkstras.exe
