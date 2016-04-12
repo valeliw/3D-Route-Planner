@@ -28,7 +28,7 @@ int _tmain(int argc, _TCHAR* argv[])
 class Node;
 class Edge;
 
-void Dijkstras();
+void Dijkstras(vector<Node*>& nodes);
 vector<Node*>* AdjacentRemainingNodes(Node* node);
 Node* ExtractSmallest(vector<Node*>& nodes);
 int Distance(Node* node1, Node* node2);
@@ -36,18 +36,17 @@ bool Contains(vector<Node*>& nodes, Node* node);
 void PrintShortestRouteTo(Node* destination);
 
 ///my own functions
-//Node* setStartingpoint();
-//Node* setDestinationPoint();
-int setStartingPoint();
-int setDestinationPoint();
+int setPoint();
 bool setHandicap();
 void deleteStairs(vector<Edge*>& edges);
+void resetNodes();
 
 
 vector<Node*> nodes;
+vector<Node*> nodesSTOP;
 vector<Node*> nodesFINAL;
 vector<Edge*> edges;
-vector<string> steps;
+//vector<string> steps;
 
 /*Node types:
 1 -> room
@@ -69,12 +68,14 @@ public:
 		: id(id), previous(NULL), distanceFromStart(INT_MAX)
 	{
 		nodes.push_back(this);
+		nodesSTOP.push_back(this);
 		nodesFINAL.push_back(this);
 	}
 	Node(string id, int type, int building, int floor)
 		: id(id), previous(NULL), distanceFromStart(INT_MAX), type(type), building(building), floor(floor)
 	{
 		nodes.push_back(this);
+		nodesSTOP.push_back(this);
 		nodesFINAL.push_back(this);
 	}
 public:
@@ -944,24 +945,40 @@ void DijkstrasTest()
 
 	///////////////////////////////////START OF USER INPUT PHASE////////////////////////////////////////////////////////
 
+
+	cout << "Input starting point id: " << endl;
+	int startID = setPoint();
+	nodes.at(startID)->distanceFromStart = 0; // set beginning node
+
+	cout << "Input the destination point: " << endl;
+	int destinationID = setPoint(); //set end node
+	
 	cout << "Do you have any disabilities that would prevent the use of stairs?" << endl;
 	bool handicap = setHandicap();
 
-	cout << "Input starting point id: " << endl;
-	int startID = setStartingPoint();
-	nodes.at(startID)->distanceFromStart = 0; // set beginning
+	cout << "Do you want to make any stops before going to your destination?" << endl;
+	bool stop = setHandicap(); //we use the same function because it just returns a boolean
 
-	cout << "Input the destination point: " << endl;
-	int destinationID = setDestinationPoint();
-	
 
 	if (handicap)
 	{
 		deleteStairs(edges); //makes the stairs unusable for a handicapped user
 	}
+	
+	if (stop)//if the user wants to make stops
+	{
+		cout << "Input the stop point: " << endl;
+		int stopID = setPoint(); //sets stop node
 
-	Dijkstras(); //find distance to all nodes
-	PrintShortestRouteTo(nodesFINAL.at(destinationID)); //set end node
+		Dijkstras(nodesSTOP);
+		PrintShortestRouteTo(nodesFINAL.at(stopID)); //go to stop
+
+		resetNodes(); //reset all nodes' distanceFromStart and previous values
+		nodesFINAL.at(stopID)->distanceFromStart = 0; //set stop as new start point
+	}
+
+	Dijkstras(nodes); //find distance to all nodes from starting point
+	PrintShortestRouteTo(nodesFINAL.at(destinationID)); //print all steps from start to end
 	system("pause");
 
 }
@@ -969,35 +986,20 @@ void DijkstrasTest()
 ///////////////////
 
 ////done by me
-int setStartingPoint() //returns starting node position in "nodes" vector
+int setPoint() //returns node position in "nodes" vector with the id inputted by the user
 {
-	string start;
+	string point;
 	int size = nodes.size();
-	//cout << "Enter id of starting point: " << endl;
-	getline(cin, start);
+	getline(cin, point);
 	for (int i = 0; i < size; i++)
 	{
-		if (start == nodes.at(i)->id)
+		if (point == nodes.at(i)->id)
 		{
 			return i;
 		}
 	}
 }
 
-int setDestinationPoint() // returns destination node position in "nodes" vector
-{
-	string destination;
-	int size = nodes.size();
-	//cout << "Enter id of starting point: " << endl;
-	getline(cin, destination);
-	for (int i = 0; i < size; i++)
-	{
-		if (destination == nodes.at(i)->id)
-		{
-			return i;
-		}
-	}
-}
 
 bool setHandicap() //returns a boolean to know if user is handicapped or not
 {
@@ -1031,7 +1033,7 @@ void deleteStairs(vector<Edge*>& edges) //deletes inter-stair edges,only use if 
 	for (int i = 0; i < size; ++i)
 	{
 		Edge* current = edges.at(i);
-		if ((current->node1->type == 3) && (current->node2->type == 3))
+		if ((current->node1->type == 3) && (current->node2->type == 3)) //check if the edge connects two stairs together
 		{
 			//cout << "The edge connecting " << current->node1->id << " and " << current->node2->id << " was 'deleted' (at i= " << i << endl;
 			//^^ for testing purposes
@@ -1040,8 +1042,18 @@ void deleteStairs(vector<Edge*>& edges) //deletes inter-stair edges,only use if 
 	}
 }
 
+void resetNodes()
+{
+	int size = nodesFINAL.size();
+	for (int i = 0; i < size; i++)
+	{
+		nodesFINAL.at(i)->distanceFromStart = INT_MAX; //set all distances to infinity
+		nodesFINAL.at(i)->previous = NULL; //restart all paths
+	}
+}
+
 //not done by me
-void Dijkstras()
+void Dijkstras(vector<Node*>& nodes) //vector argument to chose which vector to destroy
 {
 	while (nodes.size() > 0)
 	{
@@ -1148,6 +1160,7 @@ bool Contains(vector<Node*>& nodes, Node* node)
 //prints distance to destination, average time to get there walking, and every step of the way there
 void PrintShortestRouteTo(Node* destination)
 {
+	vector<string> steps;
 	Node* previous = destination;
 	int distance = (destination->distanceFromStart + 1)*2; //added +1 from how we calculate our distance and *2 because each unit is 2m
 	int time = distance/ 1.4; //average speed is 1.4 m/s
@@ -1158,7 +1171,6 @@ void PrintShortestRouteTo(Node* destination)
 	
 	while (previous)																		
 	{
-
 		steps.push_back(previous->id.c_str()); //add all steps of the journey to the "steps" vector
 		previous = previous->previous;
 	}
